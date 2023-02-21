@@ -16,7 +16,10 @@
 
         public Task(int number, string? title, string? description)
         {
-            Number = number;
+			TaskInputValidator.ValidateTaskTitle(title);
+			TaskInputValidator.ValidateTaskDescription(description);
+
+			Number = number;
             IsFinished = false;
             Title = title;
             Description = description;

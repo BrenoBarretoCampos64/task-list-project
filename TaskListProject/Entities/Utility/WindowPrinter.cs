@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Threading.Tasks;
 using TaskListProject.Entities.CustomExceptions;
 using TaskListProject.Entities.TaskRelated;
 using Task = TaskListProject.Entities.TaskRelated.Task;
@@ -81,43 +82,54 @@ namespace TaskListProject.Entities.Utility
                 Task task = taskList.SearchTaskByNumber(taskNumber);
                 PrintViewTaskWindow(task);
             }
-            catch (Exception)
-            {
-                PrintInvalidInput();
-            }
-        }
+			catch (TaskException ex)
+			{
+				PrintExceptionMessage(ex);
+			}
+			catch (Exception)
+			{
+				PrintInvalidInput();
+			}
+		}
 
         public static void PrintViewTaskWindow(Task task)
         {
             Console.Clear();
             Console.WriteLine("O========================| VIEW TASK |======================O");
             Console.WriteLine();
+
             Console.WriteLine(task.Title);
             Console.WriteLine();
+
             Console.WriteLine(task.Description);
             Console.WriteLine();
+
             Console.WriteLine("DATE OF CREATION: " + task.CreationDate);
             Console.WriteLine();
 
-            if (task.IsFinished)
-            {
-                Console.Write("THIS TASK IS ");
-                TextColorChanger.ChangeTextColorToCyan();
-                Console.WriteLine("FINISHED");
-            }
-            else
-            {
-                Console.Write("THIS TASK IS ");
-                TextColorChanger.ChangeTextColorToRed();
-                Console.WriteLine("UNFINISHED");
-            }
-
-            TextColorChanger.ChangeTextColorToWhite();
-
+            PrintFinishedOrUnfinished(task.IsFinished);
+			TextColorChanger.ChangeTextColorToWhite();
             Console.WriteLine();
+
             Console.WriteLine("O===========================================================O");
             Console.ReadKey();
         }
+
+        public static void PrintFinishedOrUnfinished(bool isTaskFinished)
+        {
+			if (isTaskFinished)
+			{
+				Console.Write("THIS TASK IS ");
+				TextColorChanger.ChangeTextColorToCyan();
+				Console.WriteLine("FINISHED");
+			}
+			else
+			{
+				Console.Write("THIS TASK IS ");
+				TextColorChanger.ChangeTextColorToRed();
+				Console.WriteLine("UNFINISHED");
+			}
+		}
 
         public static void PrintAskTaskNumberToEditWindow(TaskList taskList)
         {
@@ -131,20 +143,26 @@ namespace TaskListProject.Entities.Utility
                 Task task = taskList.SearchTaskByNumber(taskNumber);
                 PrintEditTaskWindow(task);
             }
-            catch (Exception)
-            {
-                PrintInvalidInput();
-            }
-        }
+			catch (TaskException ex)
+			{
+				PrintExceptionMessage(ex);
+			}
+			catch (Exception)
+			{
+				PrintInvalidInput();
+			}
+		}
 
         public static void PrintEditTaskWindow(Task task)
         {
             string newTitle = "";
             string newDescription = "";
+            string? oldTitle = task.Title;
+            string? oldDescription = task.Description;
 
             while (true)
             {
-                PrintEditHeaderWindow(task.Title);
+                PrintEditHeaderWindow(oldTitle);
 
                 try
                 {
@@ -152,7 +170,7 @@ namespace TaskListProject.Entities.Utility
 
                     if (answerToChangeTitle == 'y')
                     {
-                        newTitle = PrintGetNewTitleWindow();
+                        newTitle = PrintGetTitleWindow();
                     }
                     else if (answerToChangeTitle == 'n')
                     {
@@ -168,7 +186,7 @@ namespace TaskListProject.Entities.Utility
 
                     if (answerToChangeDescription == 'y')
                     {
-                        newDescription = PrintGetNewDescriptionWindow();
+                        newDescription = PrintGetDescriptionWindow();
                     }
                     else if (answerToChangeDescription == 'n')
                     {
@@ -184,10 +202,12 @@ namespace TaskListProject.Entities.Utility
 
                     if (answerToApplyChanges == 'y')
                     {
-                        ChangeTaskTitleBasedOnChoices(task, answerToChangeTitle, newTitle);
-                        ChangeTaskDescriptionBasedOnChoices(task, answerToChangeDescription, newDescription);
-                        PrintTaskChangesAppliedWindow();
-                        break;
+						bool theAnswerAreNo = AreTheAnswersNo(answerToChangeTitle, answerToChangeDescription);
+						bool titleAndDescriptionChanged = titleAndDescriptionNotChanged(newTitle, newDescription, oldTitle, oldDescription);
+						ChangeTaskTitleBasedOnChoices(task, answerToChangeTitle, newTitle);
+						ChangeTaskDescriptionBasedOnChoices(task, answerToChangeDescription, newDescription);
+						PrintWereThereChanges(theAnswerAreNo, titleAndDescriptionChanged);
+						break;
                     }
                     else if (answerToApplyChanges == 'n')
                     {
@@ -200,17 +220,13 @@ namespace TaskListProject.Entities.Utility
                 }
                 catch (DescriptionLengthException ex)
                 {
-                    Console.WriteLine();
-                    Console.WriteLine(ex.Message);
-                    Console.ReadKey();
-                    continue;
+					PrintExceptionMessage(ex);
+					continue;
                 }
                 catch (TitleLengthException ex)
                 {
-                    Console.WriteLine();
-                    Console.WriteLine(ex.Message);
-                    Console.ReadKey();
-                    continue;
+					PrintExceptionMessage(ex);
+					continue;
                 }
                 catch (Exception)
                 {
@@ -235,18 +251,7 @@ namespace TaskListProject.Entities.Utility
             Console.WriteLine("[ CHANGE TITLE? (y/n) ]");
             Console.Write("--> ");
             char answerToChangeTitle = char.Parse(Console.ReadLine());
-
             return answerToChangeTitle;
-        }
-
-        public static string PrintGetNewTitleWindow()
-        {
-            Console.WriteLine();
-            Console.WriteLine("[ ENTER NEW TITLE ]");
-            Console.Write("--> ");
-            string newTitle = Console.ReadLine();
-
-            return newTitle;
         }
 
         public static char PrintAskToChangeDescriptionWindow()
@@ -255,18 +260,7 @@ namespace TaskListProject.Entities.Utility
             Console.WriteLine("[ CHANGE DESCRIPTION? (y/n) ]");
             Console.Write("--> ");
             char answerToChangeDescription = char.Parse(Console.ReadLine());
-
             return answerToChangeDescription;
-        }
-
-        public static string PrintGetNewDescriptionWindow()
-        {
-            Console.WriteLine();
-            Console.WriteLine("[ ENTER NEW DESCRIPTION ]");
-            Console.Write("--> ");
-            string newDescription = Console.ReadLine();
-
-            return newDescription;
         }
 
         public static char PrintAskToApplyChangesWindow()
@@ -275,11 +269,10 @@ namespace TaskListProject.Entities.Utility
             Console.WriteLine("[ APPLY CHANGES? (y/n) ]");
             Console.Write("--> ");
             char answerToApplyChanges = char.Parse(Console.ReadLine());
-
             return answerToApplyChanges;
         }
 
-        public static void ChangeTaskTitleBasedOnChoices(Task task, char answerToChangeTitle, string newTitle)
+		public static void ChangeTaskTitleBasedOnChoices(Task task, char answerToChangeTitle, string newTitle)
         {
             if (answerToChangeTitle == 'y')
             {
@@ -309,15 +302,62 @@ namespace TaskListProject.Entities.Utility
             }
         }
 
-        public static void PrintTaskChangesAppliedWindow()
+        public static bool AreTheAnswersNo(char answerToChangeTitle, char answerToChangeDescription)
         {
-            Console.WriteLine();
-            Console.WriteLine("[ TASK CHANGES APPLIED ]");
-            Console.ReadKey();
-            Console.Clear();
+			if (answerToChangeTitle == 'n' && answerToChangeDescription == 'n')
+			{
+				return true;
+			}
+            return false;
+		}
+
+		public static bool TitleAndDescriptionNotChanged(
+            string newTitle, string newDescription, string oldTitle, string oldDescription)
+        {
+            if (newTitle == oldTitle)
+            {
+                if (newDescription == oldDescription)
+                {   
+					return true;
+                }
+            }
+            return false;
         }
 
-        public static void PrintAskTaskNumberToFinishWindow(TaskList taskList)
+        public static void PrintWereThereChanges(bool theAnswerAreNo, bool titleAndDescriptionNotChanged)
+        {
+            if (theAnswerAreNo)
+            {
+                PrintNoChangesWereMadeWindow();
+                return;
+			}
+            
+            if (titleAndDescriptionNotChanged)
+            {
+				PrintNoChangesWereMadeWindow();
+                return;
+			}
+
+            PrintTaskChangesAppliedWindow();
+		}   
+
+		public static void PrintNoChangesWereMadeWindow()
+        {
+			Console.WriteLine();
+			Console.WriteLine("[ NO CHANGES WERE MADE ]");
+			Console.ReadKey();
+			Console.Clear();
+		}
+
+		public static void PrintTaskChangesAppliedWindow()
+		{
+			Console.WriteLine();
+			Console.WriteLine("[ TASK CHANGES APPLIED ]");
+			Console.ReadKey();
+			Console.Clear();
+		}
+
+		public static void PrintAskTaskNumberToFinishWindow(TaskList taskList)
         {
             Console.WriteLine();
             Console.WriteLine("[ ENTER TASK NUMBER ]");
@@ -333,9 +373,7 @@ namespace TaskListProject.Entities.Utility
             }
             catch (TaskException ex)
             {
-				Console.WriteLine();
-				Console.WriteLine(ex.Message);
-				Console.ReadKey();
+				PrintExceptionMessage(ex);
 			}
 			catch (Exception)
 			{
@@ -349,18 +387,11 @@ namespace TaskListProject.Entities.Utility
             {
                 Console.Clear();
                 Console.WriteLine("O========================| ADD TASK |=======================O");
-                Console.WriteLine();
-                Console.WriteLine("[ ENTER TASK TITLE ]");
-                Console.Write("--> ");
-                string? title = Console.ReadLine();
-                Console.WriteLine();
+                string title = PrintGetTitleWindow();
+                string description = PrintGetDescriptionWindow();
+				Console.WriteLine();
 
-                Console.WriteLine("[ ENTER TASK DESCRIPTION ]");
-                Console.Write("--> ");
-                string? description = Console.ReadLine();
-                Console.WriteLine();
-
-                Console.WriteLine("[ CONFIRM NEW TASK? (y/n) ]");
+				Console.WriteLine("[ CONFIRM NEW TASK? (y/n) ]");
                 Console.Write("--> ");
                 char answerToConfirmNewTask = char.Parse(Console.ReadLine());
 
@@ -368,25 +399,17 @@ namespace TaskListProject.Entities.Utility
                 {
                     try
                     {
-                        taskList.AddTask(title, description);
-                        Console.WriteLine();
-                        Console.WriteLine("[ TASK ADDED ]");
-                        Console.ReadKey();
-                        Console.Clear();
-                        break;
+                        ConfirmAddNewTask(taskList, title, description);
+						break;
                     }
                     catch (TitleLengthException ex)
                     {
-                        Console.WriteLine();
-                        Console.WriteLine(ex.Message);
-                        Console.ReadKey();
-                        continue;
+						PrintExceptionMessage(ex);
+						continue;
                     }
 					catch (DescriptionLengthException ex)
 					{
-						Console.WriteLine();
-						Console.WriteLine(ex.Message);
-						Console.ReadKey();
+                        PrintExceptionMessage(ex);
 						continue;
 					}
 				}
@@ -400,6 +423,40 @@ namespace TaskListProject.Entities.Utility
                 }
             }
         }
+
+		public static string PrintGetTitleWindow()
+		{
+			Console.WriteLine();
+			Console.WriteLine("[ ENTER TASK TITLE ]");
+			Console.Write("--> ");
+			string title = Console.ReadLine();
+			return title;
+		}
+
+		public static string PrintGetDescriptionWindow()
+		{
+			Console.WriteLine();
+			Console.WriteLine("[ ENTER TASK DESCRIPTION ]");
+			Console.Write("--> ");
+			string description = Console.ReadLine();
+			return description;
+		}
+
+		public static void ConfirmAddNewTask(TaskList taskList, string title, string description)
+        {
+			taskList.AddTask(title, description);
+			Console.WriteLine();
+			Console.WriteLine("[ TASK ADDED ]");
+			Console.ReadKey();
+			Console.Clear();
+		}
+
+        public static void PrintExceptionMessage(Exception ex)
+        {
+			Console.WriteLine();
+			Console.WriteLine(ex.Message);
+			Console.ReadKey();
+		}
 
         public static void PrintAskTaskNumberToClearWindow(TaskList taskList)
         {
@@ -418,9 +475,7 @@ namespace TaskListProject.Entities.Utility
             }
             catch (TaskException ex)
             {
-                Console.WriteLine();
-                Console.WriteLine(ex.Message);
-                Console.ReadKey();
+                PrintExceptionMessage(ex);
             }
 			catch (Exception)
 			{

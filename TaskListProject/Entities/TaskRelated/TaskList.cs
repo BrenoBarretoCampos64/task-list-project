@@ -21,7 +21,6 @@ namespace TaskListProject.Entities.TaskRelated
         public void AddTask(string title, string description)
         {
             int Id = NumberOfTasks + 1;
-            TaskInputValidator.ValidateTitleAndDescription(title, description);
             Tasks.Add(new Task(Id, title, description));
             ReorganizeTaskNumbers();
             NumberOfTasks++;
