@@ -66,7 +66,6 @@ namespace TaskListProject.Entities.Utility
             {
                 stringBuilder.Append(" ");
             }
-
             return stringBuilder.ToString();
         }
 
@@ -106,12 +105,13 @@ namespace TaskListProject.Entities.Utility
 
             Console.WriteLine("DATE OF CREATION: " + task.CreationDate);
             Console.WriteLine();
-
+            
             PrintFinishedOrUnfinished(task.IsFinished);
-			TextColorChanger.ChangeTextColorToWhite();
             Console.WriteLine();
 
-            Console.WriteLine("O===========================================================O");
+            PrintIfHasDeadline(task ,task.IsFinished, task.HasDeadline);
+
+			Console.WriteLine("O===========================================================O");
             Console.ReadKey();
         }
 
@@ -119,19 +119,40 @@ namespace TaskListProject.Entities.Utility
         {
 			if (isTaskFinished)
 			{
-				Console.Write("THIS TASK IS ");
 				TextColorChanger.ChangeTextColorToCyan();
+				Console.Write("THIS TASK IS ");
 				Console.WriteLine("FINISHED");
 			}
 			else
 			{
-				Console.Write("THIS TASK IS ");
 				TextColorChanger.ChangeTextColorToRed();
+				Console.Write("THIS TASK IS ");
 				Console.WriteLine("UNFINISHED");
 			}
+
+            TextColorChanger.ChangeTextColorToWhite();
 		}
 
-        public static void PrintAskTaskNumberToEditWindow(TaskList taskList)
+        public static void PrintIfHasDeadline(Task task, bool isFinished, bool hasDeadline)
+        {
+			if (hasDeadline)
+			{
+				if (isFinished)
+				{
+					TextColorChanger.ChangeTextColorToCyan();
+					Console.WriteLine(task.GetRemainingDaysToDeadline());
+				}
+				else
+				{
+					TextColorChanger.ChangeTextColorToRed();
+					Console.WriteLine(task.GetRemainingDaysToDeadline());
+				}
+				TextColorChanger.ChangeTextColorToWhite();
+				Console.WriteLine();
+			}
+		}
+        
+		public static void PrintAskTaskNumberToEditWindow(TaskList taskList)
         {
             Console.WriteLine();
             Console.WriteLine("[ ENTER TASK NUMBER TO EDIT ]");
@@ -203,7 +224,7 @@ namespace TaskListProject.Entities.Utility
                     if (answerToApplyChanges == 'y')
                     {
 						bool theAnswerAreNo = AreTheAnswersNo(answerToChangeTitle, answerToChangeDescription);
-						bool titleAndDescriptionChanged = titleAndDescriptionNotChanged(newTitle, newDescription, oldTitle, oldDescription);
+						bool titleAndDescriptionChanged = TitleAndDescriptionNotChanged(newTitle, newDescription, oldTitle, oldDescription);
 						ChangeTaskTitleBasedOnChoices(task, answerToChangeTitle, newTitle);
 						ChangeTaskDescriptionBasedOnChoices(task, answerToChangeDescription, newDescription);
 						PrintWereThereChanges(theAnswerAreNo, titleAndDescriptionChanged);
@@ -337,7 +358,6 @@ namespace TaskListProject.Entities.Utility
 				PrintNoChangesWereMadeWindow();
                 return;
 			}
-
             PrintTaskChangesAppliedWindow();
 		}   
 
@@ -385,39 +405,68 @@ namespace TaskListProject.Entities.Utility
         {
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("O========================| ADD TASK |=======================O");
-                string title = PrintGetTitleWindow();
-                string description = PrintGetDescriptionWindow();
-				Console.WriteLine();
-
-				Console.WriteLine("[ CONFIRM NEW TASK? (y/n) ]");
-                Console.Write("--> ");
-                char answerToConfirmNewTask = char.Parse(Console.ReadLine());
-
-                if (answerToConfirmNewTask == 'y')
+                try
                 {
-                    try
-                    {
-                        ConfirmAddNewTask(taskList, title, description);
-						break;
-                    }
-                    catch (TitleLengthException ex)
-                    {
-						PrintExceptionMessage(ex);
-						continue;
-                    }
-					catch (DescriptionLengthException ex)
+                    Console.Clear();
+                    Console.WriteLine("O========================| ADD TASK |=======================O");
+                    string title = PrintGetTitleWindow();
+                    string description = PrintGetDescriptionWindow();
+                    bool hasDeadline = false;
+                    DateTime deadline;
+
+					Console.WriteLine();
+					Console.WriteLine("[ IS THERE A DEADLINE? (y/n) ]");
+					Console.Write("--> ");
+					char answerToTaskUrgency = char.Parse(Console.ReadLine());
+
+					if (answerToTaskUrgency == 'y')
 					{
-                        PrintExceptionMessage(ex);
+						deadline = PrintGetDeadlineWindow();
+                        hasDeadline = true;
+					}
+					else if (answerToTaskUrgency == 'n')
+					{
+						deadline = DateTime.MaxValue;
+					}
+					else
+					{
+						PrintInvalidInput();
 						continue;
 					}
-				}
-                else if (answerToConfirmNewTask == 'n')
-                {
-                    continue;
+
+					Console.WriteLine();
+                    Console.WriteLine("[ CONFIRM NEW TASK? (y/n) ]");
+                    Console.Write("--> ");
+                    char answerToConfirmNewTask = char.Parse(Console.ReadLine());
+
+                    if (answerToConfirmNewTask == 'y')
+                    {
+                        ConfirmAddNewTask(taskList, title, description, hasDeadline, deadline);
+                        break;
+                        
+                    }
+                    else if (answerToConfirmNewTask == 'n')
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        PrintInvalidInput();
+                    }
                 }
-                else
+                catch (TitleLengthException ex)
+                {
+                    PrintExceptionMessage(ex);
+                }
+                catch (DescriptionLengthException ex)
+                {
+                    PrintExceptionMessage(ex);
+                }
+                catch (DeadlineException ex)
+                {
+					PrintExceptionMessage(ex);
+				}
+                catch (Exception)
                 {
                     PrintInvalidInput();
                 }
@@ -442,9 +491,19 @@ namespace TaskListProject.Entities.Utility
 			return description;
 		}
 
-		public static void ConfirmAddNewTask(TaskList taskList, string title, string description)
+		public static DateTime PrintGetDeadlineWindow()
         {
-			taskList.AddTask(title, description);
+			Console.WriteLine();
+			Console.WriteLine("[ ENTER TASK DEADLINE DATE (dd/mm/yyyy) ]");
+			Console.Write("--> ");
+			DateTime deadline = DateTime.Parse(Console.ReadLine());
+            return deadline;
+		}
+
+		public static void ConfirmAddNewTask(
+            TaskList taskList, string title, string description, bool hasDeadline, DateTime deadline)
+        {
+			taskList.AddTask(title, description, hasDeadline, deadline);
 			Console.WriteLine();
 			Console.WriteLine("[ TASK ADDED ]");
 			Console.ReadKey();
@@ -481,6 +540,13 @@ namespace TaskListProject.Entities.Utility
 			{
 				PrintInvalidInput();
 			}
+		}
+
+        public static void PrintInvalidDate()
+        {
+			Console.WriteLine();
+			Console.WriteLine("[ INVALID DATE ]");
+			Console.ReadLine();
 		}
 
         public static void PrintExitWindow()

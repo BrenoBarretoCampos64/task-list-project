@@ -25,5 +25,13 @@ namespace TaskListProject.Entities.TaskRelated
                 throw new DescriptionLengthException("[ TASK DESCRIPTION EXCEEDED MAXIMUM LENGTH ]");
             }
         }
+
+        public static void ValidateTaskDeadline(DateTime deadline)
+        {
+            if (deadline < DateTime.Now)
+            {
+				throw new DeadlineException("[ TASK DEADLINE ALREADY MISSED ]");
+			}
+        }
     }
 }
