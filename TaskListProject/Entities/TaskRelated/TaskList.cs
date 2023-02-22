@@ -18,7 +18,7 @@ namespace TaskListProject.Entities.TaskRelated
             return Tasks;
         }
 
-        public void AddTask(string title, string description, bool hasDeadline, DateTime deadline)
+        public void AddTask(Title title, Description description, bool hasDeadline, DateTime deadline)
         {
             int Id = NumberOfTasks + 1;
             Tasks.Add(new Task(Id, title, description, hasDeadline, deadline));

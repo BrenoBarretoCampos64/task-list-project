@@ -3,12 +3,10 @@
     internal class Task
     {
         public int Number { get; set; }
-        public static int TitleMaximumLength { get; set; } = 54;
-        public static int DescriptionMaximumLength { get; set; } = 162;
+        public Title Title { get; set; }
+        public Description Description { get; set; }
         public bool IsFinished { get; set; }
         public bool HasDeadline { get; set; }
-        public string? Title { get; set; }
-        public string? Description { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime Deadline { get; set; }
 
@@ -16,9 +14,9 @@
         {
         }
 
-        public Task(int number, string? title, string? description, bool hasDeadline, DateTime deadline)
+        public Task(int number, Title title, Description description, bool hasDeadline, DateTime deadline)
         {
-			CheckTitleAndDescription(title, description);
+			CheckTitleAndDescription(title, description);   
 			CheckDeadline(hasDeadline, deadline);
 
 			Number = number;
@@ -30,9 +28,9 @@
             Deadline = deadline;
         }
 
-        public void CheckTitleAndDescription(string title, string description)
+        public void CheckTitleAndDescription(Title title, Description description)
         {
-            if (title != "" && description != "")
+            if (title.Content != "" && description.Content != "")
             {
 				TaskInputValidator.ValidateTitleAndDescription(title, description);
 			}
@@ -46,13 +44,13 @@
 			}
 		}
 
-		public void SetTitle(string newTitle)
+		public void SetTitle(Title newTitle)
         {
             TaskInputValidator.ValidateTaskTitle(newTitle);
             Title = newTitle;
         }
 
-        public void SetDescription(string newDescription)
+        public void SetDescription(Description newDescription)
         {
             TaskInputValidator.ValidateTaskDescription(newDescription);
             Description = newDescription;   

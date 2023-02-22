@@ -59,7 +59,7 @@ namespace TaskListProject.Entities.Utility
                 return "                                                      ";
             }
 
-            int remaningEmptySpaces = Task.TitleMaximumLength - task.Title.Length;
+            int remaningEmptySpaces = Title.TitleMaximumLength - task.Title.Content.Length;
             StringBuilder stringBuilder = new StringBuilder();
 
             for (int i = 0; i < remaningEmptySpaces; i++)
@@ -176,14 +176,14 @@ namespace TaskListProject.Entities.Utility
 
         public static void PrintEditTaskWindow(Task task)
         {
-            string newTitle = "";
-            string newDescription = "";
-            string? oldTitle = task.Title;
-            string? oldDescription = task.Description;
+            Title newTitle = new Title();
+            Description newDescription = new Description();
+            string? oldTitleContent = task.Title.Content;
+            string? oldDescriptionContent = task.Description.Content;
 
             while (true)
             {
-                PrintEditHeaderWindow(oldTitle);
+                PrintEditHeaderWindow(oldTitleContent);
 
                 try
                 {
@@ -224,7 +224,7 @@ namespace TaskListProject.Entities.Utility
                     if (answerToApplyChanges == 'y')
                     {
 						bool theAnswerAreNo = AreTheAnswersNo(answerToChangeTitle, answerToChangeDescription);
-						bool titleAndDescriptionChanged = TitleAndDescriptionNotChanged(newTitle, newDescription, oldTitle, oldDescription);
+						bool titleAndDescriptionChanged = TitleAndDescriptionNotChanged(newTitle, newDescription, oldTitleContent, oldDescriptionContent);
 						ChangeTaskTitleBasedOnChoices(task, answerToChangeTitle, newTitle);
 						ChangeTaskDescriptionBasedOnChoices(task, answerToChangeDescription, newDescription);
 						PrintWereThereChanges(theAnswerAreNo, titleAndDescriptionChanged);
@@ -293,32 +293,32 @@ namespace TaskListProject.Entities.Utility
             return answerToApplyChanges;
         }
 
-		public static void ChangeTaskTitleBasedOnChoices(Task task, char answerToChangeTitle, string newTitle)
+		public static void ChangeTaskTitleBasedOnChoices(Task task, char answerToChangeTitle, Title newTitle)
         {
             if (answerToChangeTitle == 'y')
             {
-                if (newTitle != null && newTitle != "")
+                if (newTitle.Content != null && newTitle.Content != "")
                 {
                     task.SetTitle(newTitle);
                 }
                 else
                 {
-                    task.SetTitle("No title");
+                    task.SetTitle(new Title("No title"));
                 }
             }
         }
 
-        public static void ChangeTaskDescriptionBasedOnChoices(Task task, char answerToChangeDescription, string newDescription)
+        public static void ChangeTaskDescriptionBasedOnChoices(Task task, char answerToChangeDescription, Description newDescription)
         {
             if (answerToChangeDescription == 'y')
             {
-                if (newDescription != null && newDescription != "")
+                if (newDescription != null && newDescription.Content != "")
                 {
                     task.SetDescription(newDescription);
                 }
                 else
                 {
-                    task.SetDescription("No description");
+                    task.SetDescription(new Description("No description"));
                 }
             }
         }
@@ -333,11 +333,11 @@ namespace TaskListProject.Entities.Utility
 		}
 
 		public static bool TitleAndDescriptionNotChanged(
-            string newTitle, string newDescription, string oldTitle, string oldDescription)
+            Title newTitle, Description newDescription, string oldTitleContent, string oldDescriptionContent)
         {
-            if (newTitle == oldTitle)
+            if (newTitle.Content == oldTitleContent)
             {
-                if (newDescription == oldDescription)
+                if (newDescription.Content == oldDescriptionContent)
                 {   
 					return true;
                 }
@@ -409,8 +409,8 @@ namespace TaskListProject.Entities.Utility
                 {
                     Console.Clear();
                     Console.WriteLine("O========================| ADD TASK |=======================O");
-                    string title = PrintGetTitleWindow();
-                    string description = PrintGetDescriptionWindow();
+                    Title title = PrintGetTitleWindow();
+                    Description description = PrintGetDescriptionWindow();
                     bool hasDeadline = false;
                     DateTime deadline;
 
@@ -473,22 +473,22 @@ namespace TaskListProject.Entities.Utility
             }
         }
 
-		public static string PrintGetTitleWindow()
+		public static Title PrintGetTitleWindow()
 		{
 			Console.WriteLine();
 			Console.WriteLine("[ ENTER TASK TITLE ]");
 			Console.Write("--> ");
-			string title = Console.ReadLine();
-			return title;
+			string titleContent = Console.ReadLine();
+			return new Title(titleContent);
 		}
 
-		public static string PrintGetDescriptionWindow()
+		public static Description PrintGetDescriptionWindow()
 		{
 			Console.WriteLine();
 			Console.WriteLine("[ ENTER TASK DESCRIPTION ]");
 			Console.Write("--> ");
-			string description = Console.ReadLine();
-			return description;
+			string descriptionContent = Console.ReadLine();
+			return new Description(descriptionContent);
 		}
 
 		public static DateTime PrintGetDeadlineWindow()
@@ -501,7 +501,7 @@ namespace TaskListProject.Entities.Utility
 		}
 
 		public static void ConfirmAddNewTask(
-            TaskList taskList, string title, string description, bool hasDeadline, DateTime deadline)
+            TaskList taskList, Title title, Description description, bool hasDeadline, DateTime deadline)
         {
 			taskList.AddTask(title, description, hasDeadline, deadline);
 			Console.WriteLine();

@@ -4,23 +4,23 @@ namespace TaskListProject.Entities.TaskRelated
 {
     internal static class TaskInputValidator
     {
-        public static void ValidateTitleAndDescription(string title, string description)
+        public static void ValidateTitleAndDescription(Title title, Description description)
         {
             ValidateTaskTitle(title);
             ValidateTaskDescription(description);
         }
 
-        public static void ValidateTaskTitle(string title)
+        public static void ValidateTaskTitle(Title title)
         {
-            if (title.Length > Task.TitleMaximumLength)
+            if (title.Content.Length > Title.TitleMaximumLength)
             {
                 throw new TitleLengthException("[ TASK TITLE EXCEEDED MAXIMUM LENGTH ]");
             }
         }
 
-        public static void ValidateTaskDescription(string description)
+        public static void ValidateTaskDescription(Description description)
         {
-            if (description.Length > Task.TitleMaximumLength)
+            if (description.Content.Length > Description.DescriptionMaximumLength)
             {
                 throw new DescriptionLengthException("[ TASK DESCRIPTION EXCEEDED MAXIMUM LENGTH ]");
             }
