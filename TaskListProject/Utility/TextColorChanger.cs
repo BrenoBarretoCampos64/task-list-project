@@ -1,4 +1,4 @@
-﻿namespace TaskListProject.Entities.Utility
+﻿namespace TaskListProject.Utility
 {
     internal static class TextColorChanger
     {

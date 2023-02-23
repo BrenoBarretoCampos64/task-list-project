@@ -1,4 +1,4 @@
-﻿namespace TaskListProject.Entities.CustomExceptions
+﻿namespace TaskListProject.Exceptions
 {
     internal class TaskException : ApplicationException
     {

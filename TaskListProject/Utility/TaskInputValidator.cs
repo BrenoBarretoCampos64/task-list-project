@@ -1,6 +1,7 @@
-﻿using TaskListProject.Entities.CustomExceptions;
+﻿using TaskListProject.Exceptions;
+using TaskListProject.Entities.TaskRelated;
 
-namespace TaskListProject.Entities.TaskRelated
+namespace TaskListProject.Utility
 {
     internal static class TaskInputValidator
     {
@@ -14,7 +15,7 @@ namespace TaskListProject.Entities.TaskRelated
         {
             if (title.Content.Length > Title.TitleMaximumLength)
             {
-                throw new TitleLengthException("[ TASK TITLE EXCEEDED MAXIMUM LENGTH ]");
+                throw new TitleLengthException("   [ TASK TITLE EXCEEDED MAXIMUM LENGTH ]");
             }
         }
 
@@ -22,7 +23,7 @@ namespace TaskListProject.Entities.TaskRelated
         {
             if (description.Content.Length > Description.DescriptionMaximumLength)
             {
-                throw new DescriptionLengthException("[ TASK DESCRIPTION EXCEEDED MAXIMUM LENGTH ]");
+                throw new DescriptionLengthException("   [ TASK DESCRIPTION EXCEEDED MAXIMUM LENGTH ]");
             }
         }
 
@@ -30,8 +31,8 @@ namespace TaskListProject.Entities.TaskRelated
         {
             if (deadline < DateTime.Now)
             {
-				throw new DeadlineException("[ TASK DEADLINE ALREADY MISSED ]");
-			}
+                throw new DeadlineException("   [ TASK DEADLINE ALREADY MISSED ]");
+            }
         }
     }
 }

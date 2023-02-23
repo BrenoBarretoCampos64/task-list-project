@@ -1,4 +1,4 @@
-﻿using TaskListProject.Entities.CustomExceptions;
+﻿using TaskListProject.Exceptions;
 
 namespace TaskListProject.Entities.TaskRelated
 {
@@ -48,6 +48,12 @@ namespace TaskListProject.Entities.TaskRelated
         public void FinishTaskByNumber(int number)
         {
             Task task = SearchTaskByNumber(number);
+
+            if (task.IsFinished)
+            {
+                throw new TaskException("   [ THIS TASK IS ALREADY FINISHED ]");
+            }
+
             task.FinishTask();
         }
 
@@ -60,7 +66,7 @@ namespace TaskListProject.Entities.TaskRelated
                     return task;
                 }
             }
-            throw new TaskException("[ TASK NUMBER NOT FOUND IN TASK LIST ]");
+            throw new TaskException("   [ TASK NUMBER NOT FOUND IN TASK LIST ]");
         }
     }
 }

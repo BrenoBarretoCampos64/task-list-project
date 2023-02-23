@@ -1,7 +1,8 @@
-﻿using TaskListProject.Entities.CustomExceptions;
+﻿using TaskListProject.Exceptions;
 using TaskListProject.Entities.TaskRelated;
+using TaskListProject.UI;
 
-namespace TaskListProject.Entities.Utility
+namespace TaskListProject.Entities
 {
     internal class OptionReader
     {
@@ -31,7 +32,7 @@ namespace TaskListProject.Entities.Utility
                     WindowPrinter.PrintExitWindow();
                     break;
                 default:
-                    throw new InvalidOptionException("[ INVALID OPTION ]");
+                    throw new InvalidOptionException("   [ INVALID OPTION ]");
             }
         }
     }
