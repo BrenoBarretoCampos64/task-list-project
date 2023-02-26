@@ -13,3 +13,5 @@ C:\Users\breno\Área de Trabalho\Main\Projects\Coding Workspaces\csharp-workspac
 C:\Users\breno\Área de Trabalho\Main\Projects\Coding Workspaces\csharp-workspace\TaskListProject\TaskListProject\obj\Debug\net6.0\TaskListProject.pdb
 C:\Users\breno\Área de Trabalho\Main\Projects\Coding Workspaces\csharp-workspace\TaskListProject\TaskListProject\obj\Debug\net6.0\TaskListProject.genruntimeconfig.cache
 C:\Users\breno\Área de Trabalho\Main\Projects\Coding Workspaces\csharp-workspace\TaskListProject\TaskListProject\obj\Debug\net6.0\ref\TaskListProject.dll
+C:\Users\breno\Área de Trabalho\Main\Projects\Coding Workspaces\csharp-workspace\TaskListProject\TaskListProject\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\breno\Área de Trabalho\Main\Projects\Coding Workspaces\csharp-workspace\TaskListProject\TaskListProject\obj\Debug\net6.0\TaskListProject.csproj.CopyComplete
