@@ -1,9 +1,9 @@
 ﻿using TaskListProject.Exceptions;
 using TaskListProject.Entities.TaskRelated;
 
-namespace TaskListProject.Utility
+namespace TaskListProject.Services
 {
-    internal static class TaskInputValidator
+    internal class TaskInputValidator
     {
         public static void ValidateTitleAndDescription(Title title, Description description)
         {

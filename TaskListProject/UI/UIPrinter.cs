@@ -1,12 +1,13 @@
 ﻿using System.Text;
+using System.Threading.Tasks;
 using TaskListProject.Entities.TaskRelated;
 using TaskListProject.Exceptions;
-using TaskListProject.Utility;
+using TaskListProject.Services;
 using Task = TaskListProject.Entities.TaskRelated.Task;
 
-namespace TaskListProject.UI
+namespace TaskListProject.UI    
 {
-    internal static class WindowPrinter
+    internal class UIPrinter
     {
         public static void PrintMenu(TaskList taskList)
         {
@@ -50,7 +51,7 @@ namespace TaskListProject.UI
             }
             else
             {
-                TextColorChanger.ChangeTextColorToRed();
+                TextColorChanger.ChangeTextColorToYellow();
             }
         }
 
@@ -61,7 +62,8 @@ namespace TaskListProject.UI
                 return "                                                      ";
             }
 
-            int remaningEmptySpaces = Title.TitleMaximumLength - task.Title.Content.Length;
+            int taskNumberLength = task.Number.ToString().Length;
+            int remaningEmptySpaces = (Title.TitleMaximumLength - taskNumberLength) - task.Title.Content.Length;
             StringBuilder stringBuilder = new StringBuilder();
 
             for (int i = 0; i < remaningEmptySpaces; i++)
@@ -100,13 +102,15 @@ namespace TaskListProject.UI
             Console.WriteLine("   { VIEWING TASK " + task.Number + " }");
             Console.WriteLine();
 
+            ChangeColorsBasedIfFinished(task.IsFinished);
+
             Console.WriteLine("   " + task.Title);
             Console.WriteLine();
 
             Console.WriteLine("   " + task.Description);
             Console.WriteLine();
 
-            Console.WriteLine("   DATE OF CREATION: " + task.CreationDate);
+            Console.WriteLine("   [ DATE OF CREATION: " + task.CreationDate + " ]");
             Console.WriteLine();
 
             PrintFinishedOrUnfinished(task.IsFinished);
@@ -114,24 +118,35 @@ namespace TaskListProject.UI
 
             PrintIfHasDeadline(task, task.IsFinished, task.HasDeadline);
             Console.ReadKey();
-        }
 
-        public static void PrintFinishedOrUnfinished(bool isTaskFinished)
+            TextColorChanger.ChangeTextColorToWhite();
+		}
+
+		public static void ChangeColorsBasedIfFinished(bool IsFinished)
         {
-            if (isTaskFinished)
+            if (IsFinished)
             {
                 TextColorChanger.ChangeTextColorToCyan();
-                Console.Write("   THIS TASK IS ");
-                Console.WriteLine("FINISHED");
             }
             else
             {
-                TextColorChanger.ChangeTextColorToRed();
-                Console.Write("   THIS TASK IS ");
-                Console.WriteLine("UNFINISHED");
+                TextColorChanger.ChangeTextColorToYellow();
             }
+        }
 
-            TextColorChanger.ChangeTextColorToWhite();
+
+		public static void PrintFinishedOrUnfinished(bool isTaskFinished)
+        {
+            if (isTaskFinished)
+            {
+                Console.Write("   [ THIS TASK IS ");
+                Console.WriteLine("FINISHED ]");
+            }
+            else
+            {
+                Console.Write("   [ THIS TASK IS ");
+                Console.WriteLine("UNFINISHED ]");
+            }
         }
 
         public static void PrintIfHasDeadline(Task task, bool isFinished, bool hasDeadline)
@@ -140,15 +155,12 @@ namespace TaskListProject.UI
             {
                 if (isFinished)
                 {
-                    TextColorChanger.ChangeTextColorToCyan();
                     Console.WriteLine(task.GetRemainingDaysToDeadline());
                 }
                 else
                 {
-                    TextColorChanger.ChangeTextColorToRed();
                     Console.WriteLine(task.GetRemainingDaysToDeadline());
                 }
-                TextColorChanger.ChangeTextColorToWhite();
                 Console.WriteLine();
             }
         }
@@ -518,7 +530,15 @@ namespace TaskListProject.UI
             }
         }
 
-        public static void PrintInvalidDate()
+		public static void NoTaskDatabaseFoundWindow()
+        {
+			Console.WriteLine();
+			Console.WriteLine("   [ NO TASK DATABASE FOUND ]");
+            Console.WriteLine("   [ GENERATING SAMPLE TASKS... ]");
+            Console.ReadLine();
+        }
+
+		public static void PrintInvalidDate()
         {
             Console.WriteLine();
             Console.WriteLine("   [ INVALID DATE ]");
@@ -529,7 +549,6 @@ namespace TaskListProject.UI
         {
             Console.WriteLine();
             Console.WriteLine("   [ APPLICATION CLOSED ]");
-            Console.ReadKey();
         }
 
         public static void PrintInvalidInput()

@@ -1,4 +1,4 @@
-﻿using TaskListProject.Utility;
+﻿using TaskListProject.Services;
 
 namespace TaskListProject.Entities.TaskRelated
 {
@@ -30,13 +30,42 @@ namespace TaskListProject.Entities.TaskRelated
             Deadline = deadline;
         }
 
-        public void CheckTitleAndDescription(Title title, Description description)
+		public Task(
+            int number, Title title, Description description, bool isFinished, 
+            bool hasDeadline, DateTime deadline, DateTime creationDate)
+		{
+			CheckTitleAndDescription(title, description);
+			CheckDeadline(hasDeadline, deadline);
+
+			Number = number;
+			IsFinished = isFinished;
+			Title = title;
+			Description = description;
+			CreationDate = creationDate;
+			HasDeadline = hasDeadline;
+			Deadline = deadline;
+		}
+
+		public void CheckTitleAndDescription(Title title, Description description)
         {
-            if (title.Content != "" && description.Content != "")
+            if (title.Content != "")
             {
-                TaskInputValidator.ValidateTitleAndDescription(title, description);
+                TaskInputValidator.ValidateTaskTitle(title);
             }
-        }
+            else
+            {
+                title.Content = "No title";
+            }
+
+			if (description.Content != "")
+			{
+				TaskInputValidator.ValidateTaskDescription(description);
+			}
+            else
+            {
+				description.Content = "No description";
+			}
+		}
 
         public void CheckDeadline(bool hasDeadline, DateTime deadline)
         {
@@ -97,7 +126,7 @@ namespace TaskListProject.Entities.TaskRelated
 
             if (IsFinished)
             {
-                return "   DEADLINE ALREADY MET";
+                return "   [ DEADLINE ALREADY MET ]";
             }
 
             TimeSpan remainingTime = Deadline.Subtract(DateTime.Now.ToUniversalTime());
@@ -105,17 +134,17 @@ namespace TaskListProject.Entities.TaskRelated
 
             if (remainingDays < 0)
             {
-                return "   DEADLINE MISSED!";
+                return "   [ DEADLINE MISSED! ]";
             }
             if (remainingDays == 1)
             {
-                return "   DEADLINE IN " + remainingDays + " DAY";
+                return "   [ DEADLINE IN " + remainingDays + " DAY ]";
             }
             if (remainingDays == 0)
             {
-                return "   DEADLINE IN " + remainingDays + " DAYS";
+                return "   [ DEADLINE IN " + remainingDays + " DAYS ]";
             }
-            return "   DEADLINE IN " + remainingDays + " DAYS";
+            return "   [ DEADLINE IN " + remainingDays + " DAYS ]";
         }
 
         public void FinishTask()

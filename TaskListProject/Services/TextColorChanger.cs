@@ -1,6 +1,6 @@
-﻿namespace TaskListProject.Utility
+﻿namespace TaskListProject.Services
 {
-    internal static class TextColorChanger
+    internal class TextColorChanger
     {
         public static void ChangeTextColorToWhite()
         {
@@ -12,9 +12,9 @@
             Console.ForegroundColor = ConsoleColor.Cyan;
         }
 
-        public static void ChangeTextColorToRed()
+        public static void ChangeTextColorToYellow()
         {
-            Console.ForegroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.Yellow;
         }
     }
 }

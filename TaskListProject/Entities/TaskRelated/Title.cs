@@ -3,7 +3,7 @@
     internal class Title
     {
         public string? Content { get; set; }
-        public static int TitleMaximumLength { get; set; } = 54;
+        public static int TitleMaximumLength { get; set; } = 55;
 
         public Title()
         {
